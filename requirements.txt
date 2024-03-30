@@ -1,0 +1,15 @@
+langchain==0.0.225
+ctransformers==0.2.5
+sentence-transformers==2.2.2
+pypdf
+flask
+faiss-cpu
+-e .
+python-dotenv
+streamlit
+unstructured
+langchain_community
+langchain-text-splitters
+pickle
+accelerate==0.20.3
+llama-cpp-python
