@@ -6,11 +6,13 @@ from constants import *
 
 
 def store_data_in_vectordb(documents, embeddings):
-    current_vectordb = load_vectordb(VECTOR_DB_DIRECTORY, embeddings)
-    print('current_vectordb - ', current_vectordb)
+    current_knowledge_base = load_vectordb(VECTOR_DB_DIRECTORY, embeddings)
+    print('current_vectordb - ', current_knowledge_base)
 
     new_knowledge_base =FAISS.from_documents(documents, embeddings)
     print('new_knowledge_base - ', new_knowledge_base)
+
+    # current_knowledge_base.add_documents(embeddings)
 
     # Saving the new vector DB
     new_knowledge_base.save_local(VECTOR_DB_DIRECTORY)
@@ -28,9 +30,6 @@ def store_data_in_vectordb(documents, embeddings):
 
 ## TODO : Need to visit code to add documents to existing vectorDB
 def get_vector_store(text_chunks, embeddings):
-    print('INSIDE get_vector_store')
-    print('text_chunks - ', text_chunks)
-    print('embeddings - ', embeddings)
     #Convert the Text Chunks into Embeddings and Create a FAISS Vector Store
     knowledge_base =FAISS.from_documents(text_chunks, embeddings)
     knowledge_base.add_documents(embeddings)

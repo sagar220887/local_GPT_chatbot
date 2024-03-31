@@ -1,7 +1,8 @@
 from langchain import HuggingFaceHub
-from transformers import  AutoTokenizer
 from ctransformers import AutoModelForCausalLM
 import os
+from constants import *
+from langchain.llms import CTransformers
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -17,7 +18,15 @@ def get_llm_model():
     #                 'temperature':0.01}
     # )
 
-    # llm = AutoModelForCausalLM.from_pretrained("./model/mistral-7b-instruct-v0.1.Q4_K_S.gguf", model_type="cpu")
-    llm = HuggingFaceHub(repo_id="mistralai/Mistral-7B-Instruct-v0.2", huggingfacehub_api_token=HF_API_KEY)
+    # llm = AutoModelForCausalLM.from_pretrained(
+    #     model_path_or_repo_id="model/", 
+    #     model_file = "mistral-7b-instruct-v0.1.Q4_K_M.gguf",
+    #     model_type="mistral",
+    #     local_files_only = True
+    # )
+    llm = HuggingFaceHub(
+            repo_id=MODEL_REPO_ID, 
+            huggingfacehub_api_token=HF_API_KEY
+        )
     print('LLM model Loaded')
     return llm

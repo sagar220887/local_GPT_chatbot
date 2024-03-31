@@ -24,25 +24,35 @@ logging.basicConfig(
 
 
 def load_data_source(loaded_files):
+    print('Inside load_data_source')
+    all_loaders = []
     for loaded_file in loaded_files:
         print('loaded_file - ', loaded_file)
         temp_file = create_temp_file(loaded_file)
         # temp_file = './tmp/74862151_1709607183894.pdf'
         # loader = PyPDFLoader(temp_file)
         loader = get_loader_by_file_extension(temp_file)
-        print('loader - ', loader)
-        data = loader.load()
-        return data
+        # print('loader - ', loader)
+        all_loaders.append(loader)
+        
+    loader_all = MergedDataLoader(loaders=all_loaders) 
+    data = loader_all.load()
+    return data
     
 
 
 
 def extract_data_from_webpage(web_url):
-    # load data
-    # ! pip3 install unstructured libmagic python-magic python-magic-bin
-    loader = UnstructuredURLLoader(urls=web_url)
-    documents = loader.load()
-    return documents
+    try:
+        print('Inside extract_data_from_webpage')
+        # load data
+        # ! pip3 install unstructured libmagic python-magic python-magic-bin
+        loader = UnstructuredURLLoader(urls=[web_url])
+        documents = loader.load()
+        print('documents - ', documents)
+        return documents
+    except:
+        print('Exception inside extract_data_from_webpage')
 
 def get_data_chunks(data):
     recursive_char_text_splitter=RecursiveCharacterTextSplitter(

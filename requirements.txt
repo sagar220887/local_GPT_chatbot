@@ -10,6 +10,4 @@ streamlit
 unstructured
 langchain_community
 langchain-text-splitters
-pickle
 accelerate==0.20.3
-llama-cpp-python

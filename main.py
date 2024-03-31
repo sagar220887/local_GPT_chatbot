@@ -1,40 +1,6 @@
-from langchain import PromptTemplate
-from langchain.chains import RetrievalQA
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores import FAISS
-from langchain.document_loaders import PyPDFLoader, DirectoryLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.llms import CTransformers
-# from src.helper import *
-
 import streamlit as st
-from io import StringIO
-import os
-import time
-from PyPDF2 import PdfReader
-from langchain.llms import CTransformers
 
-from langchain.vectorstores import FAISS
-from langchain import PromptTemplate
-
-
-from langchain_community.document_loaders import UnstructuredURLLoader, MergedDataLoader
-from langchain_community.document_loaders import TextLoader
-from langchain_community.document_loaders.csv_loader import CSVLoader
-from langchain_community.document_loaders import PyPDFLoader
-from langchain_community.document_loaders import PyPDFDirectoryLoader, DirectoryLoader
-from langchain_community.document_loaders import UnstructuredFileLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-import pickle
-from langchain import HuggingFaceHub
-from transformers import  AutoTokenizer
-from ctransformers import AutoModelForCausalLM
-
-from src.data_ingestion import (
-    load_data_source,
-    extract_data_from_webpage,
-    get_data_chunks
-) 
+from src.data_ingestion import *
 
 from constants import *
 from src.embeddings import *
@@ -43,6 +9,11 @@ from src.llm_model import *
 from src.prompt_template import *
 from src.chain import *
 from src.events import *
+
+from dotenv import load_dotenv
+load_dotenv()
+
+HF_API_KEY = os.getenv('HUGGINGFACE_API_KEY')
 
 
 
@@ -90,24 +61,38 @@ st.markdown(
 #########################################################################################################
 
 
-def process_for_new_data_source(uploaded_files):
+def process_for_new_data_source(uploaded_files, web_url):
 
         with st.spinner('Processing, Wait for it...'):
-        
-                # #Load the PDF File
-                documents = load_data_source(uploaded_files)
+                
+                print('uploaded_files - ', uploaded_files)
+                print('web_url - ', web_url)
+                
+                if uploaded_files:
+                    # #Load the PDF File
+                    documents = load_data_source(uploaded_files)
+                elif web_url:
+                    # Extracting text from web page
+                    documents = extract_data_from_webpage(web_url)
+
                 # #Split Text into Chunks
                 st.session_state.data_chunks = get_data_chunks(documents)
+
                 # #Load the Embedding Model
                 embeddings = create_embeddings()
+
                 # #Convert the Text Chunks into Embeddings and Create a FAISS Vector Store
                 vector_db=store_data_in_vectordb(st.session_state.data_chunks, embeddings)
+
                 ## Loading the LLM model
                 llm = get_llm_model()
+                
                 ## Getting the prompt
                 qa_prompt = get_qa_prompt()
+                
                 ## Getting the conversation chain
                 st.session_state.conversation = create_chain(llm, vector_db, qa_prompt)
+                # st.write('✅ Created Chain')
 
                 st.text("Ready to go ...✅✅✅")
                 st.session_state.processComplete = True
@@ -140,10 +125,11 @@ def main():
             if st.session_state.upload_files:
                 st.session_state.new_data_source = True
                 # Getting the chain
-                st.session_state.conversation = process_for_new_data_source(st.session_state.upload_files)
+                st.session_state.conversation = process_for_new_data_source(st.session_state.upload_files, None)
 
             elif URL_TO_EXTRACT:
                 st.session_state.new_data_source = True
+                st.session_state.conversation = process_for_new_data_source(None, URL_TO_EXTRACT)
                 
 
         else :
@@ -156,7 +142,7 @@ def main():
     ##### CHAT BOT CONVERSATIONS  ############################
             
     with st.chat_message("assistant"):
-        st.write("Hello Human, How do I help U.")
+        st.write("Hello Human, How may I help you.")
 
     # Display chat messages from history on app rerun
     for message in st.session_state.messages:
