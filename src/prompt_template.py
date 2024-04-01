@@ -41,11 +41,13 @@ def get_summarization_template():
     SYSTEM_PROMPT = B_SYS + DEFAULT_SYSTEM_PROMPT + E_SYS
     template = B_INST + SYSTEM_PROMPT + summarization_instruction + E_INST
     prompt = PromptTemplate(template=template, input_variables=["text"])
+    return prompt
 
 def get_translation_template():
     SYSTEM_PROMPT = B_SYS + DEFAULT_SYSTEM_PROMPT + E_SYS
     template = B_INST + SYSTEM_PROMPT + translation_instruction + E_INST
     prompt = PromptTemplate(template=template, input_variables=["text"])
+    return prompt
 
 
 

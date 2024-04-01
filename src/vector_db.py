@@ -3,6 +3,7 @@ import pandas as pd
 from langchain.chains import RetrievalQA
 from langchain.chains import ConversationalRetrievalChain
 from constants import *
+from main import st
 
 
 def store_data_in_vectordb(documents, embeddings):
@@ -16,6 +17,8 @@ def store_data_in_vectordb(documents, embeddings):
 
     # Saving the new vector DB
     new_knowledge_base.save_local(VECTOR_DB_DIRECTORY)
+    vector_dataframe = convert_vectordb_to_df(new_knowledge_base)
+    # st.write(vector_dataframe)
     return new_knowledge_base
 
     ## TODO
@@ -26,6 +29,12 @@ def store_data_in_vectordb(documents, embeddings):
     # Saving the new vector DB
 #     updated_knowledge_base.save_local(vector_db_directory)
 #     return updated_knowledge_base
+
+
+
+def load_vectordb(stored_directory, embeddings):
+    loaded_vector_db = FAISS.load_local(stored_directory, embeddings)
+    return loaded_vector_db
 
 
 ## TODO : Need to visit code to add documents to existing vectorDB
@@ -47,14 +56,10 @@ def convert_vectordb_to_df(vectorDb):
         content =  vector_dict[k].page_content
         data_rows.append({"chunk_id": k, "document": doc_name, "page": page_number, "content":content})
 
-    vector_df = pd.Dataframe(data_rows)
+    vector_df = pd.DataFrame(data_rows)
+    print(vector_df)
     return vector_df
 
-
-
-def load_vectordb(stored_directory, embeddings):
-    loaded_vector_db = FAISS.load_local(stored_directory, embeddings)
-    return loaded_vector_db
 
 def save_vectordb_to_local(vectordb, vector_db_directory):
     vectordb.save_local(vector_db_directory)
