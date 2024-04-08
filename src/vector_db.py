@@ -17,7 +17,7 @@ def store_data_in_vectordb(documents, embeddings):
 
     # Saving the new vector DB
     new_knowledge_base.save_local(VECTOR_DB_DIRECTORY)
-    vector_dataframe = convert_vectordb_to_df(new_knowledge_base)
+    # vector_dataframe = convert_vectordb_to_df(new_knowledge_base)
     # st.write(vector_dataframe)
     return new_knowledge_base
 

@@ -11,65 +11,34 @@ from src.vector_db import *
 from src.llm_model import *
 from src.prompt_template import *
 from src.chain import *
+# from main import *
 
-
-
-def process_for_new_data_source(uploaded_files, web_url):
-
-        with st.spinner('Processing, Wait for it...'):
-                
-                print('uploaded_files - ', uploaded_files)
-                print('web_url - ', web_url)
-                
-                if uploaded_files:
-                    # #Load the PDF File
-                    documents = load_data_source(uploaded_files)
-                elif web_url:
-                    # Extracting text from web page
-                    documents = extract_data_from_webpage(web_url)
-
-                # #Split Text into Chunks
-                st.session_state.data_chunks = get_data_chunks(documents)
-
-                # #Load the Embedding Model
-                embeddings = create_embeddings()
-
-                # #Convert the Text Chunks into Embeddings and Create a FAISS Vector Store
-                vector_db=store_data_in_vectordb(st.session_state.data_chunks, embeddings)
-
-                ## Loading the LLM model
-                llm = get_llm_model()
-                
-                ## Getting the prompt
-                qa_prompt = get_qa_prompt()
-                
-                ## Getting the conversation chain
-                st.session_state.conversation = create_chain(llm, vector_db, qa_prompt)
-                # st.write('✅ Created Chain')
-
-                st.text("Ready to go ...✅✅✅")
-                st.session_state.processComplete = True
-
-                return st.session_state.conversation
-        
 
 
 def process_for_existing_source():
+    print("Processing for existing source ======>>")
 
     #Load the Embedding Model
     embeddings = create_embeddings()
     vector_db = load_vectordb(VECTOR_DB_DIRECTORY, embeddings=embeddings)
-    llm = get_llm_model()
+    # llm = get_llm_model()
+    llm = get_user_input_llm_model(st.session_state.llmprovider, st.session_state.apikey)
     qa_prompt = get_qa_prompt()
-    chain = create_chain(llm, vector_db, qa_prompt)
-    return chain
+    st.session_state.conversation = create_chain(llm, vector_db, qa_prompt)
+    return st.session_state.conversation
 
 
 
 def get_response(chain, user_query):
+    print("<< ============== Getting the response of the User Question ======>>")
     print('user_query - ', user_query)
+    # check the instance of chain
+    print("st.session_state.conversation ==> ", st.session_state.conversation)
+    if st.session_state.conversation == None:
+        process_for_existing_source()
+
     # executing Query through chain
-    result=chain({'query':user_query}, return_only_outputs=True)
+    result=st.session_state.conversation({'query':user_query}, return_only_outputs=True)
     print('result - ', result)
     ans = result['result']
     print(f"Answer:{ans}")
