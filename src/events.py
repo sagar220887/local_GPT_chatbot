@@ -90,9 +90,14 @@ def process_for_new_data_source(uploaded_files, web_url):
         
 
 def update_chain_on_key_selection(llm, api_key):
-    print('<< ===  Updating the llm model and chain on key selection == >>')
-    st.session_state.llm_model = get_user_input_llm_model(llm, api_key)
-    qa_prompt = get_qa_prompt()
-    st.session_state.conversation = create_chain(st.session_state.llm_model, st.session_state.vector_db, qa_prompt)
-    return st.session_state.conversation
+    with st.spinner('Processing, Wait for it...'):
+        print('<< ===  Updating the llm model and chain on key selection == >>')
+        st.session_state.llm_model = get_user_input_llm_model(llm, api_key)
+        qa_prompt = get_qa_prompt()
+        if st.session_state.vector_db:
+            st.session_state.conversation = create_chain(st.session_state.llm_model, st.session_state.vector_db, qa_prompt)
+        else:
+            print('Vector DB not created')
+        st.write('✅ Token updated')
+        return st.session_state.conversation
 

@@ -21,16 +21,6 @@ def store_data_in_vectordb(documents, embeddings):
     # st.write(vector_dataframe)
     return new_knowledge_base
 
-    ## TODO
-    # Adding new data to existing vector DB
-#     updated_knowledge_base = new_knowledge_base.merge_from(current_vectordb)
-#     print('updated_knowledge_base - ', updated_knowledge_base)
-
-    # Saving the new vector DB
-#     updated_knowledge_base.save_local(vector_db_directory)
-#     return updated_knowledge_base
-
-
 
 def load_vectordb(stored_directory, embeddings):
     loaded_vector_db = FAISS.load_local(stored_directory, embeddings)
