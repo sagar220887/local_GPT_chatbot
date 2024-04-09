@@ -46,7 +46,7 @@ def get_llm_model_from_local():
     llm = CTransformers(
             model="model/llama-2-7b-chat.ggmlv3.q4_0.bin",
             model_type="llama",
-            config={'max_new_tokens':512,
+            config={'max_new_tokens':300,
                     'temperature':0.01}
         )
     print('LLM model Loaded')

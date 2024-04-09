@@ -16,6 +16,8 @@ from langchain.chains import RetrievalQA
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
 from src.prompt_template import *
+from langchain_community.document_loaders import SeleniumURLLoader
+from langchain_community.document_loaders import PlaywrightURLLoader
 
 logging.basicConfig(
     level=logging.INFO,
@@ -45,7 +47,7 @@ def load_data_source(loaded_files):
 def extract_data_from_webpage(web_url):
     try:
         print('Inside extract_data_from_webpage')
-        # load data
+        
         # ! pip3 install unstructured libmagic python-magic python-magic-bin
         loader = UnstructuredURLLoader(urls=[web_url])
         documents = loader.load()
@@ -64,8 +66,17 @@ def get_data_chunks(data):
     print('documents length - ', len(documents))
     return documents
 
+def extract_data_through_selenium_loader(urls):
+    loader = SeleniumURLLoader(urls=urls)
+    data = loader.load()
+    return data
 
 
+
+def extract_data_through_playwright_loader(urls):
+    loader = PlaywrightURLLoader(urls=urls, remove_selectors=["header", "footer"])
+    data = loader.load()
+    return data
 
 ####################################       FUNCTIONS              ############################################
 

@@ -11,3 +11,5 @@ unstructured
 langchain_community
 langchain-text-splitters
 accelerate==0.20.3
+selenium
+playwright 

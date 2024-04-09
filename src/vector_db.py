@@ -82,9 +82,20 @@ def refresh_model(vectordb, llm):
 
 
 def get_similiar_docs(vector_db, query,k=1,score=False):
-  if score:
-    similar_docs = vector_db.similarity_search_with_score(query,k=k)
-  else:
-    similar_docs = vector_db.similarity_search(query,k=k)
-  return similar_docs
+  
+    vectordb_results = list()
+    if score:
+        similar_docs_with_score = vector_db.similarity_search_with_score(query,k=k)
+        for doc, score in similar_docs_with_score:
+            print(f"Content: {doc.page_content}, Metadata: {doc.metadata}, Score: {score}")
+            vectordb_results.append(doc.page_content)
+    else:
+        similar_docs = vector_db.similarity_search(query,k=k)
+        for doc in similar_docs:
+            vectordb_results.append(doc.page_content)
+
+    return vectordb_results
+
+
+
 

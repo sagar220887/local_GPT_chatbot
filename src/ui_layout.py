@@ -93,7 +93,7 @@ def main_container_layout():
         with st.chat_message("assistant"):
             print('Inside st.chat_message("assistant")')
             with st.spinner('Processing ...'):
-                response = get_response(st.session_state.conversation, prompt)
+                response = get_response(prompt)
                 st.markdown(response)
         # Add assistant response to chat history
         st.session_state.messages.append({"role": "assistant", "content": response})

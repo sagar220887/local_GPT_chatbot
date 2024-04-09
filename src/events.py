@@ -32,13 +32,18 @@ def process_for_existing_source():
 
 
 
-def get_response(chain, user_query):
+def get_response(user_query):
     print("<< ============== Getting the response of the User Question ======>>")
     print('user_query - ', user_query)
     # check the instance of chain
     print("st.session_state.conversation ==> ", st.session_state.conversation)
     if st.session_state.conversation == None:
         process_for_existing_source()
+
+    # Getting the similarity
+    vector_db_results = get_similiar_docs(st.session_state.vector_db, user_query, k=2, score=True)
+    print('vector_db_results ==> ', vector_db_results)
+    # return "\n".join(vector_db_results)
 
     # executing Query through chain
     result=st.session_state.conversation({'query':user_query}, return_only_outputs=True)
