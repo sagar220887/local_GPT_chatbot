@@ -11,21 +11,24 @@ from src.vector_db import *
 from src.llm_model import *
 from src.prompt_template import *
 from src.chain import *
-# from main import *
+from src.helper import *
+
+st = get_streamlit_instance()
 
 
 
 def process_for_existing_source():
-    print("Processing for existing source ======>>")
+    with st.spinner('Processing, Wait for it...'):
+        print("Processing for existing source ======>>")
 
-    #Load the Embedding Model
-    embeddings = create_embeddings()
-    vector_db = load_vectordb(VECTOR_DB_DIRECTORY, embeddings=embeddings)
-    # llm = get_llm_model()
-    llm = get_user_input_llm_model(st.session_state.llmprovider, st.session_state.apikey)
-    qa_prompt = get_qa_prompt()
-    st.session_state.conversation = create_chain(llm, vector_db, qa_prompt)
-    return st.session_state.conversation
+        #Load the Embedding Model
+        embeddings = create_embeddings()
+        st.session_state.vector_db = load_vectordb(VECTOR_DB_DIRECTORY, embeddings=embeddings)
+        # llm = get_llm_model()
+        st.session_state.llm_model = get_user_input_llm_model(st.session_state.llmprovider, st.session_state.apikey)
+        qa_prompt = get_qa_prompt()
+        st.session_state.conversation = create_chain(st.session_state.llm_model, st.session_state.vector_db, qa_prompt)
+        return st.session_state.conversation
 
 
 
@@ -44,4 +47,52 @@ def get_response(chain, user_query):
     print(f"Answer:{ans}")
     return ans
 
+
+
+def process_for_new_data_source(uploaded_files, web_url):
+
+    with st.spinner('Processing, Wait for it...'):
+            
+        print('uploaded_files - ', uploaded_files)
+        print('web_url - ', web_url)
+        
+        if uploaded_files:
+            # #Load the PDF File
+            documents = load_data_source(uploaded_files)
+        elif web_url:
+            # Extracting text from web page
+            documents = extract_data_from_webpage(web_url)
+
+        # #Split Text into Chunks
+        st.session_state.data_chunks = get_data_chunks(documents)
+
+        # #Load the Embedding Model
+        embeddings = create_embeddings()
+
+        # #Convert the Text Chunks into Embeddings and Create a FAISS Vector Store
+        st.session_state.vector_db=store_data_in_vectordb(st.session_state.data_chunks, embeddings)
+
+        ## Loading the LLM model
+        # llm = get_llm_model()
+        st.session_state.llm_model = get_user_input_llm_model(st.session_state.llmprovider, st.session_state.apikey)
+        
+        ## Getting the prompt
+        qa_prompt = get_qa_prompt()
+        
+        ## Getting the conversation chain
+        st.session_state.conversation = create_chain(st.session_state.llm_model, st.session_state.vector_db, qa_prompt)
+        # st.write('✅ Created Chain')
+
+        st.text("Ready to go ...✅✅✅")
+        st.session_state.processComplete = True
+
+        return st.session_state.conversation
+        
+
+def update_chain_on_key_selection(llm, api_key):
+    print('<< ===  Updating the llm model and chain on key selection == >>')
+    st.session_state.llm_model = get_user_input_llm_model(llm, api_key)
+    qa_prompt = get_qa_prompt()
+    st.session_state.conversation = create_chain(st.session_state.llm_model, st.session_state.vector_db, qa_prompt)
+    return st.session_state.conversation
 
