@@ -7,19 +7,31 @@ from main import st
 
 
 def store_data_in_vectordb(documents, embeddings):
-    current_knowledge_base = load_vectordb(VECTOR_DB_DIRECTORY, embeddings)
-    print('current_vectordb - ', current_knowledge_base)
+    existing_knowledge_base = None
+    try:
+        existing_knowledge_base = load_vectordb(VECTOR_DB_DIRECTORY, embeddings)
+        print('current_vectordb - ', convert_vectordb_to_df(existing_knowledge_base))
+    except :
+        print('Error in loading the existing vector DB')
 
     new_knowledge_base =FAISS.from_documents(documents, embeddings)
-    print('new_knowledge_base - ', new_knowledge_base)
+    print('new_knowledge_base - ', convert_vectordb_to_df(new_knowledge_base))
 
-    # current_knowledge_base.add_documents(embeddings)
+    if existing_knowledge_base:
+        print('Merging the new data base into the existing knowledge base')
+        existing_knowledge_base.merge_from(new_knowledge_base)
+        existing_knowledge_base.save_local(VECTOR_DB_DIRECTORY)
+        print('updated_knowledge_base - ', convert_vectordb_to_df(existing_knowledge_base))
+    else:
+        print('Saving the new data base')
+        new_knowledge_base.save_local(VECTOR_DB_DIRECTORY)
+        print('updated_knowledge_base - ', convert_vectordb_to_df(new_knowledge_base))
 
-    # Saving the new vector DB
-    new_knowledge_base.save_local(VECTOR_DB_DIRECTORY)
-    # vector_dataframe = convert_vectordb_to_df(new_knowledge_base)
-    # st.write(vector_dataframe)
-    return new_knowledge_base
+    final_loaded_knowledge_base = load_vectordb(VECTOR_DB_DIRECTORY, embeddings)
+    print('final_loaded_knowledge_base - ', convert_vectordb_to_df(final_loaded_knowledge_base))
+   
+
+    return final_loaded_knowledge_base
 
 
 def load_vectordb(stored_directory, embeddings):
@@ -37,18 +49,22 @@ def get_vector_store(text_chunks, embeddings):
 
 
 def convert_vectordb_to_df(vectorDb):
-    vector_dict = vectorDb.docstore._dict
-    data_rows = []
+    try:
+        vector_dict = vectorDb.docstore._dict
+        data_rows = []
 
-    for k in vector_dict.keys():
-        doc_name = vector_dict[k].metadata['source'].split('/')[-1]
-        page_number = vector_dict[k].metadata['page'] + 1
-        content =  vector_dict[k].page_content
-        data_rows.append({"chunk_id": k, "document": doc_name, "page": page_number, "content":content})
+        for k in vector_dict.keys():
+            doc_name = vector_dict[k].metadata['source'].split('/')[-1]
+            page_number = vector_dict[k].metadata['page'] + 1
+            content =  vector_dict[k].page_content
+            data_rows.append({"chunk_id": k, "document": doc_name, "page": page_number, "content":content})
 
-    vector_df = pd.DataFrame(data_rows)
-    print(vector_df)
-    return vector_df
+        vector_df = pd.DataFrame(data_rows)
+        print(vector_df)
+        return vector_df
+    except:
+        print('Error in convert_vectordb_to_df')
+        return None
 
 
 def save_vectordb_to_local(vectordb, vector_db_directory):
