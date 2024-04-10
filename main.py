@@ -52,6 +52,9 @@ if "llm_model" not in st.session_state:
 if "vector_db" not in st.session_state:
     st.session_state.vector_db = None
 
+# Initialize state of knowledgebase checkbox
+if "user_response_knowledgebase" not in st.session_state:
+    st.session_state.user_response_knowledgebase = None
 
 
 st.markdown(

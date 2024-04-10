@@ -40,18 +40,38 @@ def get_response(user_query):
     if st.session_state.conversation == None:
         process_for_existing_source()
 
-    # Getting the similarity
-    vector_db_results = get_similiar_docs(st.session_state.vector_db, user_query, k=2, score=True)
-    print('vector_db_results ==> ', vector_db_results)
-    # return "\n".join(vector_db_results)
+    vectordb_response = get_response_from_vectordb(user_query)
+    print('st.session_state.user_response_knowledgebase ==> ', st.session_state.user_response_knowledgebase)
 
-    # executing Query through chain
-    result=st.session_state.conversation({'query':user_query}, return_only_outputs=True)
-    print('result - ', result)
-    ans = result['result']
-    print(f"Answer:{ans}")
-    return ans
+    if st.session_state.user_response_knowledgebase == True:
+        return f'Document : {vectordb_response}'
+    else:
+        return get_response_from_llm(user_query)
+    
 
+def get_response_from_vectordb(user_query):
+    try:
+        vector_db_results = get_similiar_docs(st.session_state.vector_db, user_query, k=1, score=True)
+        print('vector_db_results ==> ', vector_db_results)
+        document_result = "\n".join(vector_db_results)
+        return document_result
+    except Exception as e:
+        print('Exception inside Getting the response', e)
+        return None
+    
+
+def get_response_from_llm(user_query):
+    try:
+        result=st.session_state.conversation({'query':user_query}, return_only_outputs=True)
+        print('result - ', result)
+        ans = result['result']
+        # source_document_data = result['source_documents']
+        # print('source_document_data')
+        print(f"Answer:{ans}")
+        return ans
+    except Exception as e:
+        print('Exception inside Getting the response', e)
+        return f"Received no response from LLM. Results from document - {get_response_from_vectordb(user_query)}"
 
 
 def process_for_new_data_source(uploaded_files, web_url):

@@ -38,8 +38,10 @@ def left_navigation_layout():
             st.session_state.conversation = update_chain_on_key_selection(st.session_state.llmprovider, st.session_state.apikey)
 
 
+        # Checkbox asking user to get data only from Vector DB
+        st.session_state.user_response_knowledgebase = st.checkbox("Response only from your documents")
 
-
+        # Process Button
         st.session_state.file_process = st.button("Process")
 
         if st.session_state.file_process:

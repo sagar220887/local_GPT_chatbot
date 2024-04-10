@@ -35,14 +35,19 @@ def get_user_input_llm_model(api_provider, api_key):
         return get_llm_from_hf_repo(HF_API_KEY)
 
 def get_llm_from_hf_repo(key):
+    print(f'get_llm_from_hf_repo for model - {MODEL_REPO_ID}')
     llm = HuggingFaceHub(
             repo_id=MODEL_REPO_ID, 
-            huggingfacehub_api_token=key
+            huggingfacehub_api_token=key,
+            model_kwargs={'max_new_tokens':512,
+                    'temperature':0.01
+            }
         )
     print('LLM model Loaded')
     return llm
 
 def get_llm_model_from_local():
+    print('Using local LLM model - llama-2-7b-chat.ggmlv3.q4_0.bin')
     llm = CTransformers(
             model="model/llama-2-7b-chat.ggmlv3.q4_0.bin",
             model_type="llama",
