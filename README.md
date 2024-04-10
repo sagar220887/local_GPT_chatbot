@@ -1,7 +1,22 @@
 # local_GPT_chatbot
 A custom chat which shall take documents and provide info on these documents
 
-## run the file
+## Architecture of RAG
+
+![screenshot](RAG.png)
+
+## Setup
+
+### 1. Create a virtual environment
+
+### 2. Activate virtual environment
+
+### 3. Install the libraries
+
+### 4. Create a .env file to store the API tokens
+
+
+### 5. Run the file
 streamlit run main.py
 
 
