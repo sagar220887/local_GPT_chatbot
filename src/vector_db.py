@@ -48,6 +48,7 @@ def get_vector_store(text_chunks, embeddings):
     return knowledge_base 
 
 
+import pandas as pd
 def convert_vectordb_to_df(vectorDb):
     try:
         vector_dict = vectorDb.docstore._dict
@@ -55,15 +56,18 @@ def convert_vectordb_to_df(vectorDb):
 
         for k in vector_dict.keys():
             doc_name = vector_dict[k].metadata['source'].split('/')[-1]
-            page_number = vector_dict[k].metadata['page'] + 1
+            if 'page' not in vector_dict[k].metadata:
+                page_number = 1
+            else:
+                page_number = vector_dict[k].metadata['page'] + 1
             content =  vector_dict[k].page_content
             data_rows.append({"chunk_id": k, "document": doc_name, "page": page_number, "content":content})
 
         vector_df = pd.DataFrame(data_rows)
         print(vector_df)
         return vector_df
-    except:
-        print('Error in convert_vectordb_to_df')
+    except Exception as e :
+        print('Error in convert_vectordb_to_df - ', e)
         return None
 
 
