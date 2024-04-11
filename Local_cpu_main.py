@@ -34,10 +34,10 @@ from ctransformers import AutoModelForCausalLM
 
 
 
-vector_store_file = "./model/saved/faiss_vector_store.pkl"
+# vector_store_file = "./model/saved/faiss_vector_store.pkl"
 vector_db_directory = "./model/vectordb"
-llm_model_pkl_file = "./model/saved/llama-2-7b-chat.pkl"
-huggingface_embedding_pkl_file = "./model/saved/huggingface_embedding.pkl"
+# llm_model_pkl_file = "./model/saved/llama-2-7b-chat.pkl"
+# huggingface_embedding_pkl_file = "./model/saved/huggingface_embedding.pkl"
 
 chain = None
 vector_db = None
@@ -46,6 +46,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 HF_API_KEY = os.getenv('HUGGINGFACE_API_KEY')
+HUGGINGFACEHUB_API_TOKEN = os.getenv('HUGGINGFACEHUB_API_TOKEN')
 
 
 
@@ -174,8 +175,11 @@ def create_embeddings():
 
 
 def store_data_in_vectordb(documents, embeddings):
-    current_vectordb = load_vectordb(vector_db_directory, embeddings)
-    print('current_vectordb - ', current_vectordb)
+    try:
+        current_vectordb = load_vectordb(vector_db_directory, embeddings)
+        print('current_vectordb - ', current_vectordb)
+    except:
+        print('Exception inside storing data in vector db')
 
     new_knowledge_base =FAISS.from_documents(documents, embeddings)
     print('new_knowledge_base - ', new_knowledge_base)
@@ -297,8 +301,8 @@ def process_for_existing_source():
     st.session_state.conversation = True
     # #Load the Embedding Model
     embeddings = create_embeddings()
-    vector_db = load_vectordb()
-    llm = get_llm_model(vector_store_file, embeddings)
+    vector_db = load_vectordb(vector_db_directory, embeddings)
+    llm = get_llm_model()
     qa_prompt = get_prompt()
     chain = create_chain(llm, vector_db, qa_prompt)
     return chain

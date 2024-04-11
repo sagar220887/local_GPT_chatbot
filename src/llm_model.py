@@ -21,7 +21,9 @@ def get_user_input_llm_model(api_provider, api_key):
         return get_llm_from_hf_repo(api_key)
     
     elif api_provider == 'Google':
-        return None
+        llm2=HuggingFaceHub(repo_id="google/flan-t5-large",huggingfacehub_api_token=HF_API_KEY)
+        return llm2
+    
     
     elif api_provider == 'OpenAI':
         return None
