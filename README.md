@@ -26,3 +26,6 @@ streamlit run main.py
  - Then ask the same question
 
 We can observe how the bot answer it as per the context
+
+### Download model to local
+huggingface-cli download  google/flan-t5-large pytorch_model.bin --local-dir ./model/ --local-dir-use-symlinks False

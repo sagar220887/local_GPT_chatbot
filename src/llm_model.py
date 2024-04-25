@@ -4,10 +4,14 @@ import os
 from constants import *
 from langchain.llms import CTransformers
 
+import google.generativeai as genai
+from langchain_google_genai import ChatGoogleGenerativeAI
+
 from dotenv import load_dotenv
 load_dotenv()
 
 HF_API_KEY = os.getenv('HUGGINGFACE_API_KEY')
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 
 
 def get_user_input_llm_model(api_provider, api_key):
@@ -21,8 +25,11 @@ def get_user_input_llm_model(api_provider, api_key):
         return get_llm_from_hf_repo(api_key)
     
     elif api_provider == 'Google':
-        llm2=HuggingFaceHub(repo_id="google/flan-t5-large",huggingfacehub_api_token=HF_API_KEY)
-        return llm2
+        genai.configure(api_key=GOOGLE_API_KEY)
+        model = genai.GenerativeModel(model_name = "gemini-pro")
+        model = ChatGoogleGenerativeAI(model="gemini-pro",google_api_key=GOOGLE_API_KEY,
+                             temperature=0.2,convert_system_message_to_human=True)
+        return model
     
     
     elif api_provider == 'OpenAI':

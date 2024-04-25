@@ -14,3 +14,4 @@ accelerate==0.20.3
 selenium
 playwright
 google-generativeai
+langchain-google-genai
